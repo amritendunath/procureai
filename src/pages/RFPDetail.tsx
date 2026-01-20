@@ -4,6 +4,8 @@ import { getRfp, sendRfp, checkResponses, getVendors, getComparison } from '../l
 import type { Rfp, Vendor } from '../lib/types';
 import { Mail, RefreshCw, BarChart2, Check } from 'lucide-react';
 
+import { useData } from '../lib/DataContext'; // Ensure this import exists
+
 export const RFPDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [rfp, setRfp] = useState<Rfp | null>(null);
@@ -14,15 +16,26 @@ export const RFPDetail: React.FC = () => {
     const [sendingRfp, setSendingRfp] = useState(false);
     const [comparison, setComparison] = useState<string | null>(null);
 
+    const { rfpDetails, cacheRfpDetail } = useData();
+
     useEffect(() => {
         if (id) {
-            loadRfp();
+            if (rfpDetails[id]) {
+                setRfp(rfpDetails[id]); // Load from cache instantly
+            } else {
+                loadRfp(); // Fetch if not in cache
+            }
             getVendors().then(setVendors);
         }
     }, [id]);
 
     const loadRfp = () => {
-        if (id) getRfp(id).then(setRfp);
+        if (id) {
+            getRfp(id).then(data => {
+                setRfp(data);
+                cacheRfpDetail(data); // Update cache
+            });
+        }
     };
 
     const handleSend = async () => {

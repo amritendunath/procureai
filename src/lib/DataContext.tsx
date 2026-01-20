@@ -12,6 +12,8 @@ interface DataContextType {
     addVendorOptimistic: (vendor: Vendor) => void;
     removeVendorOptimistic: (id: string) => void;
     removeRfpOptimistic: (id: string) => void;
+    rfpDetails: Record<string, Rfp>;
+    cacheRfpDetail: (rfp: Rfp) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -19,6 +21,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [rfps, setRfps] = useState<Rfp[]>([]);
     const [vendors, setVendors] = useState<Vendor[]>([]);
+    const [rfpDetails, setRfpDetails] = useState<Record<string, Rfp>>({});
     const [isLoading, setIsLoading] = useState(true);
 
     const refreshRfps = async () => {
@@ -58,12 +61,19 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const removeRfpOptimistic = (id: string) => {
         setRfps(prev => prev.filter(r => r.id !== id));
+        const { [id]: _, ...rest } = rfpDetails;
+        setRfpDetails(rest);
+    };
+
+    const cacheRfpDetail = (rfp: Rfp) => {
+        setRfpDetails(prev => ({ ...prev, [rfp.id]: rfp }));
     };
 
     return (
         <DataContext.Provider value={{
             rfps, vendors, refreshRfps, refreshVendors, isLoading,
-            addVendorOptimistic, removeVendorOptimistic, removeRfpOptimistic
+            addVendorOptimistic, removeVendorOptimistic, removeRfpOptimistic,
+            rfpDetails, cacheRfpDetail
         }}>
             {children}
         </DataContext.Provider>
