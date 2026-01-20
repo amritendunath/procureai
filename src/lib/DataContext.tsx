@@ -9,6 +9,9 @@ interface DataContextType {
     refreshRfps: () => Promise<void>;
     refreshVendors: () => Promise<void>;
     isLoading: boolean;
+    addVendorOptimistic: (vendor: Vendor) => void;
+    removeVendorOptimistic: (id: string) => void;
+    removeRfpOptimistic: (id: string) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -45,8 +48,23 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         loadInitialData();
     }, []);
 
+    const addVendorOptimistic = (newVendor: Vendor) => {
+        setVendors(prev => [...prev, newVendor]);
+    };
+
+    const removeVendorOptimistic = (id: string) => {
+        setVendors(prev => prev.filter(v => v.id !== id));
+    };
+
+    const removeRfpOptimistic = (id: string) => {
+        setRfps(prev => prev.filter(r => r.id !== id));
+    };
+
     return (
-        <DataContext.Provider value={{ rfps, vendors, refreshRfps, refreshVendors, isLoading }}>
+        <DataContext.Provider value={{
+            rfps, vendors, refreshRfps, refreshVendors, isLoading,
+            addVendorOptimistic, removeVendorOptimistic, removeRfpOptimistic
+        }}>
             {children}
         </DataContext.Provider>
     );

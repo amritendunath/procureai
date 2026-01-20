@@ -4,16 +4,29 @@ import { Plus, Mail, Trash2 } from 'lucide-react';
 import { useData } from '../lib/DataContext';
 
 export const Vendors: React.FC = () => {
-    const { vendors, refreshVendors } = useData();
+    const { vendors, refreshVendors, addVendorOptimistic, removeVendorOptimistic } = useData();
     const [isAdding, setIsAdding] = useState(false);
     const [newVendor, setNewVendor] = useState({ name: '', email: '', tags: '' });
 
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
-        await createVendor(newVendor);
+
+        // 1. Optimistic Update (Instant feedback)
+        const tempId = Date.now().toString(); // Temporary ID
+        const tempVendor = { ...newVendor, id: tempId, createdAt: new Date().toISOString() };
+        addVendorOptimistic(tempVendor);
         setIsAdding(false);
         setNewVendor({ name: '', email: '', tags: '' });
-        refreshVendors();
+
+        // 2. API Call (Background)
+        try {
+            await createVendor(newVendor);
+            await refreshVendors(); // Re-fetch to get real ID
+        } catch (error) {
+            console.error("Failed to add vendor", error);
+            removeVendorOptimistic(tempId); // Revert on failure
+            alert("Failed to add vendor.");
+        }
     };
 
     return (
@@ -78,12 +91,20 @@ export const Vendors: React.FC = () => {
                             <button
                                 onClick={async (e) => {
                                     e.stopPropagation();
+
+                                    // 1. Optimistic Delete (Instance)
+                                    removeVendorOptimistic(vendor.id);
+
+                                    // 2. API Call (Background)
                                     try {
                                         await deleteVendor(vendor.id);
+                                        // No need to refresh if successful, local state is already correct
+                                        // But good practice to ensure sync:
                                         refreshVendors();
                                     } catch (error) {
                                         console.error("Failed to delete vendor", error);
-                                        refreshVendors();
+                                        refreshVendors(); // Revert/Refresh on failure
+                                        alert("Failed to delete vendor.");
                                     }
                                 }}
                                 className="text-gray-400 hover:text-red-600 p-1 hover:bg-gray-100 rounded transition-colors"

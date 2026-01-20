@@ -5,7 +5,7 @@ import { Plus, ChevronRight, FileText, Clock, CheckCircle, Trash2 } from 'lucide
 import { useData } from '../lib/DataContext';
 
 export const Dashboard: React.FC = () => {
-    const { rfps, refreshRfps } = useData();
+    const { rfps, refreshRfps, removeRfpOptimistic } = useData();
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -56,8 +56,19 @@ export const Dashboard: React.FC = () => {
                                 <button
                                     onClick={async (e) => {
                                         e.preventDefault();
-                                        await deleteRfp(rfp.id);
-                                        refreshRfps();
+
+                                        // 1. Optimistic (Instant)
+                                        removeRfpOptimistic(rfp.id);
+
+                                        // 2. Background
+                                        try {
+                                            await deleteRfp(rfp.id);
+                                            refreshRfps();
+                                        } catch (e) {
+                                            console.error(e);
+                                            refreshRfps(); // Revert
+                                            alert("Failed to delete RFP.");
+                                        }
                                     }}
                                     className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                                     title="Delete RFP"
