@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { getRfps, deleteRfp } from '../lib/api';
-import type { Rfp } from '../lib/types';
+import { deleteRfp } from '../lib/api';
 import { Plus, ChevronRight, FileText, Clock, CheckCircle, Trash2 } from 'lucide-react';
+import { useData } from '../lib/DataContext';
 
 export const Dashboard: React.FC = () => {
-    const [rfps, setRfps] = useState<Rfp[]>([]);
-
-    useEffect(() => {
-        getRfps().then(setRfps).catch(console.error);
-    }, []);
+    const { rfps, refreshRfps } = useData();
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -20,56 +16,55 @@ export const Dashboard: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
+        <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-                    <p className="text-gray-500">Manage your procurement requests</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard</h2>
+                    <p className="text-sm sm:text-base text-gray-500">Manage your procurement requests</p>
                 </div>
-                <Link to="/create" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                    <Plus size={20} />
-                    <span>New RFP</span>
+                <Link to="/create" className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition whitespace-nowrap self-start sm:self-auto">
+                    <Plus size={18} />
+                    <span className="text-sm sm:text-base">New RFP</span>
                 </Link>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
                 {rfps.map(rfp => (
-                    <Link key={rfp.id} to={`/rfp/${rfp.id}`} className="block p-6 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
-                        <div className="flex justify-between items-start">
-                            <div className="flex items-start gap-4">
-                                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
-                                    <FileText size={24} />
+                    <Link key={rfp.id} to={`/rfp/${rfp.id}`} className="block p-4 sm:p-6 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+                            <div className="flex items-start gap-3 sm:gap-4 flex-1">
+                                <div className="p-2 sm:p-3 bg-indigo-50 text-indigo-600 rounded-lg flex-shrink-0">
+                                    <FileText size={20} className="sm:w-6 sm:h-6" />
                                 </div>
-                                <div>
-                                    <h3 className="font-semibold text-lg text-gray-900">{rfp.title}</h3>
-                                    <p className="text-sm text-gray-500 line-clamp-1">{rfp.description}</p>
-                                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-semibold text-base sm:text-lg text-gray-900 break-words">{rfp.title}</h3>
+                                    <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mt-1">{rfp.description}</p>
+                                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-2 text-xs sm:text-sm text-gray-400">
                                         <span className="flex items-center gap-1">
-                                            <Clock size={14} /> Created {new Date(rfp.createdAt).toLocaleDateString()}
+                                            <Clock size={12} className="sm:w-3.5 sm:h-3.5" /> {new Date(rfp.createdAt).toLocaleDateString()}
                                         </span>
                                         <span className="flex items-center gap-1">
-                                            <CheckCircle size={14} /> {rfp._count?.proposals || 0} Proposals
+                                            <CheckCircle size={12} className="sm:w-3.5 sm:h-3.5" /> {rfp._count?.proposals || 0} Proposals
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <span className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide ${getStatusColor(rfp.status)}`}>
+                            <div className="flex items-center gap-2 sm:gap-4 self-start sm:self-center">
+                                <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide ${getStatusColor(rfp.status)}`}>
                                     {rfp.status}
                                 </span>
                                 <button
                                     onClick={async (e) => {
-                                        e.preventDefault(); // Prevent link navigation
+                                        e.preventDefault();
                                         await deleteRfp(rfp.id);
-                                        setRfps(prevRfps => prevRfps.filter(r => r.id !== rfp.id)); // Optimistic or reload
-                                        getRfps().then(setRfps); // Reload just in case
+                                        refreshRfps();
                                     }}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                                    className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                                     title="Delete RFP"
                                 >
-                                    <Trash2 size={18} />
+                                    <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
                                 </button>
-                                <ChevronRight className="text-gray-300" />
+                                <ChevronRight className="hidden sm:block text-gray-300" />
                             </div>
                         </div>
                     </Link>

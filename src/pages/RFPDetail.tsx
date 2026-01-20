@@ -80,26 +80,26 @@ export const RFPDetail: React.FC = () => {
         : rfp.structuredData;
 
     return (
-        <div className="space-y-8 animate-in fade-in">
+        <div className="space-y-6 sm:space-y-8">
             {/* Header */}
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
                 <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <h1 className="text-3xl font-bold text-gray-900">{rfp.title}</h1>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide border ${rfp.status === 'sent' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                    <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{rfp.title}</h1>
+                        <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide border ${rfp.status === 'sent' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
                             {rfp.status}
                         </span>
                     </div>
-                    <p className="text-gray-500 max-w-2xl">{rfp.description}</p>
+                    <p className="text-sm sm:text-base text-gray-500 max-w-2xl">{rfp.description}</p>
                 </div>
-                <div className="flex gap-2">
-                    <button onClick={handleCheckResponses} disabled={loading} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <button onClick={handleCheckResponses} disabled={loading} className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base">
+                        <RefreshCw size={16} className="sm:w-[18px] sm:h-[18px]" />
                         Check Mail
                     </button>
-                    <button onClick={handleCompare} disabled={loading} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                        <BarChart2 size={18} />
-                        Compare Proposals
+                    <button onClick={handleCompare} disabled={loading} className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm sm:text-base">
+                        <BarChart2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                        Compare
                     </button>
                 </div>
             </div>
@@ -225,12 +225,13 @@ export const RFPDetail: React.FC = () => {
                         <button
                             onClick={handleSend}
                             disabled={selectedVendors.length === 0 || loading}
-                            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                         >
                             {loading ? 'Sending...' : (
                                 <>
-                                    <Mail size={18} />
-                                    Send RFP ({selectedVendors.length})
+                                    <Mail size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                    <span className="hidden sm:inline">Send RFP ({selectedVendors.length})</span>
+                                    <span className="sm:hidden">Send ({selectedVendors.length})</span>
                                 </>
                             )}
                         </button>

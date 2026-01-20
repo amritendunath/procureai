@@ -1,36 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { getVendors, createVendor, deleteVendor } from '../lib/api';
-import type { Vendor } from '../lib/types';
+import React, { useState } from 'react';
+import { createVendor, deleteVendor } from '../lib/api';
 import { Plus, Mail, Trash2 } from 'lucide-react';
+import { useData } from '../lib/DataContext';
 
 export const Vendors: React.FC = () => {
-    const [vendors, setVendors] = useState<Vendor[]>([]);
+    const { vendors, refreshVendors } = useData();
     const [isAdding, setIsAdding] = useState(false);
     const [newVendor, setNewVendor] = useState({ name: '', email: '', tags: '' });
-
-    useEffect(() => {
-        loadVendors();
-    }, []);
-
-    const loadVendors = () => getVendors().then(setVendors);
 
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         await createVendor(newVendor);
         setIsAdding(false);
         setNewVendor({ name: '', email: '', tags: '' });
-        loadVendors();
+        refreshVendors();
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">Vendor Directory</h2>
+        <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Vendor Directory</h2>
                 <button
                     onClick={() => setIsAdding(!isAdding)}
-                    className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+                    className="flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition text-sm sm:text-base self-start sm:self-auto"
                 >
-                    <Plus size={20} />
+                    <Plus size={18} />
                     <span>Add Vendor</span>
                 </button>
             </div>
@@ -84,12 +78,12 @@ export const Vendors: React.FC = () => {
                             <button
                                 onClick={async (e) => {
                                     e.stopPropagation();
-                                    setVendors(prev => prev.filter(v => v.id !== vendor.id));
                                     try {
                                         await deleteVendor(vendor.id);
+                                        refreshVendors();
                                     } catch (error) {
                                         console.error("Failed to delete vendor", error);
-                                        loadVendors();
+                                        refreshVendors();
                                     }
                                 }}
                                 className="text-gray-400 hover:text-red-600 p-1 hover:bg-gray-100 rounded transition-colors"
@@ -103,7 +97,7 @@ export const Vendors: React.FC = () => {
                             <Mail size={14} /> {vendor.email}
                         </div>
                         <div className="flex flex-wrap gap-2 mt-4">
-                            {vendor.tags?.split(',').map(tag => (
+                            {vendor.tags?.split(',').map((tag: string) => (
                                 <span key={tag} className="px-2 py-1 bg-gray-50 text-gray-600 text-xs rounded-md border border-gray-100">
                                     {tag.trim()}
                                 </span>
