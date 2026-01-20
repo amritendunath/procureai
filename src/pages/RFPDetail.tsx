@@ -9,7 +9,9 @@ export const RFPDetail: React.FC = () => {
     const [rfp, setRfp] = useState<Rfp | null>(null);
     const [vendors, setVendors] = useState<Vendor[]>([]);
     const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [checkingMail, setCheckingMail] = useState(false);
+    const [comparing, setComparing] = useState(false);
+    const [sendingRfp, setSendingRfp] = useState(false);
     const [comparison, setComparison] = useState<string | null>(null);
 
     useEffect(() => {
@@ -25,7 +27,7 @@ export const RFPDetail: React.FC = () => {
 
     const handleSend = async () => {
         if (!id || selectedVendors.length === 0) return;
-        setLoading(true);
+        setSendingRfp(true);
         try {
             await sendRfp(id, selectedVendors);
             alert('RFP sent to selected vendors!');
@@ -34,34 +36,33 @@ export const RFPDetail: React.FC = () => {
             console.error(e);
             alert('Failed to send emails.');
         } finally {
-            setLoading(false);
+            setSendingRfp(false);
         }
     };
 
     const handleCheckResponses = async () => {
         if (!id) return;
-        setLoading(true);
+        setCheckingMail(true);
         try {
             await checkResponses(id);
-            // alert(`Found ${res.count} new responses.`);
             loadRfp();
         } catch (e) {
             console.error(e);
         } finally {
-            setLoading(false);
+            setCheckingMail(false);
         }
     };
 
     const handleCompare = async () => {
         if (!id) return;
-        setLoading(true);
+        setComparing(true);
         try {
             const res = await getComparison(id);
             setComparison(res.analysis);
         } catch (e) {
             console.error(e);
         } finally {
-            setLoading(false);
+            setComparing(false);
         }
     };
 
@@ -93,12 +94,12 @@ export const RFPDetail: React.FC = () => {
                     <p className="text-sm sm:text-base text-gray-500 max-w-2xl">{rfp.description}</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <button onClick={handleCheckResponses} disabled={loading} className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base">
-                        <RefreshCw size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <button onClick={handleCheckResponses} disabled={checkingMail} className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base disabled:opacity-50">
+                        <RefreshCw size={16} className={`sm:w-[18px] sm:h-[18px] ${checkingMail ? 'animate-spin' : ''}`} />
                         Check Mail
                     </button>
-                    <button onClick={handleCompare} disabled={loading} className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm sm:text-base">
-                        <BarChart2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <button onClick={handleCompare} disabled={comparing} className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm sm:text-base disabled:opacity-50">
+                        <BarChart2 size={16} className={`sm:w-[18px] sm:h-[18px] ${comparing ? 'animate-spin' : ''}`} />
                         Compare
                     </button>
                 </div>
@@ -224,10 +225,10 @@ export const RFPDetail: React.FC = () => {
                         </div>
                         <button
                             onClick={handleSend}
-                            disabled={selectedVendors.length === 0 || loading}
+                            disabled={selectedVendors.length === 0 || sendingRfp}
                             className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                         >
-                            {loading ? 'Sending...' : (
+                            {sendingRfp ? 'Sending...' : (
                                 <>
                                     <Mail size={16} className="sm:w-[18px] sm:h-[18px]" />
                                     <span className="hidden sm:inline">Send RFP ({selectedVendors.length})</span>

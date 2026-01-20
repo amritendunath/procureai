@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createRfp } from '../lib/api';
 import { Send, Bot, Loader2 } from 'lucide-react';
+import { useData } from '../lib/DataContext';
 
 export const CreateRFP: React.FC = () => {
+    const { refreshRfps } = useData();
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -15,6 +17,7 @@ export const CreateRFP: React.FC = () => {
         setLoading(true);
         try {
             const rfp = await createRfp(input);
+            await refreshRfps();
             navigate(`/rfp/${rfp.id}`);
         } catch (error) {
             console.error(error);
