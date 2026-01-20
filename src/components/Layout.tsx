@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Users } from 'lucide-react';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
@@ -78,12 +78,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-gray-100">
-                    <div className="flex items-center gap-3 px-4 py-3 text-gray-500">
-                        <Settings size={20} />
-                        <span>Settings</span>
-                    </div>
-                </div>
+
             </aside>
 
             {/* Main Content */}
