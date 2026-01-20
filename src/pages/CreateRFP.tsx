@@ -56,7 +56,7 @@ export const CreateRFP: React.FC = () => {
 
     return (
         <div className="max-w-4xl mx-auto h-[calc(100vh-100px)] flex flex-col relative">
-            <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pb-24">
+            <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pb-48 overflow-y-auto">
                 {/* Hero Section */}
                 <div className="text-center space-y-6 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <div className="relative inline-block">
